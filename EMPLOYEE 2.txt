@@ -1,0 +1,166 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+struct Employee {
+    int id;
+    char name[30];
+    char designation[20];
+    float salary;
+};
+
+struct Index {
+    int id;
+    int position;
+};
+
+vector<Index> indexList;
+
+// Function to load index from file
+void loadIndex() {
+    indexList.clear();
+    ifstream indexFile("index.dat", ios::binary);
+    Index idx;
+    while (indexFile.read((char*)&idx, sizeof(Index))) {
+        indexList.push_back(idx);
+    }
+    indexFile.close();
+    sort(indexList.begin(), indexList.end(), [](Index a, Index b) {
+        return a.id < b.id;
+    });
+}
+
+// Function to update index file
+void saveIndex() {
+    ofstream indexFile("index.dat", ios::binary | ios::trunc);
+    for (Index& idx : indexList) {
+        indexFile.write((char*)&idx, sizeof(Index));
+    }
+    indexFile.close();
+}
+
+// Function to add employee
+void addEmployee() {
+    Employee emp;
+    cout << "Enter Employee ID: ";
+    cin >> emp.id;
+    cout << "Enter Name: ";
+    cin.ignore();
+    cin.getline(emp.name, 30);
+    cout << "Enter Designation: ";
+    cin.getline(emp.designation, 20);
+    cout << "Enter Salary: ";
+    cin >> emp.salary;
+
+    // Add to file
+    ofstream dataFile("employee.dat", ios::binary | ios::app);
+    int position = dataFile.tellp() / sizeof(Employee);
+    dataFile.write((char*)&emp, sizeof(Employee));
+    dataFile.close();
+
+    // Update index
+    Index idx = { emp.id, position };
+    indexList.push_back(idx);
+    saveIndex();
+
+    cout << "Employee added successfully.\n";
+}
+
+// Function to search employee by ID
+int searchIndex(int id) {
+    for (int i = 0; i < indexList.size(); i++) {
+        if (indexList[i].id == id)
+            return indexList[i].position;
+    }
+    return -1;
+}
+
+// Function to display employee
+void displayEmployee() {
+    int id;
+    cout << "Enter Employee ID to search: ";
+    cin >> id;
+
+    int pos = searchIndex(id);
+    if (pos == -1) {
+        cout << "Employee not found.\n";
+        return;
+    }
+
+    ifstream dataFile("employee.dat", ios::binary);
+    dataFile.seekg(pos * sizeof(Employee));
+    Employee emp;
+    dataFile.read((char*)&emp, sizeof(Employee));
+    dataFile.close();
+
+    cout << "\nEmployee Details:\n";
+    cout << "ID: " << emp.id << "\nName: " << emp.name
+         << "\nDesignation: " << emp.designation
+         << "\nSalary: " << emp.salary << "\n";
+}
+
+// Function to delete employee
+void deleteEmployee() {
+    int id;
+    cout << "Enter Employee ID to delete: ";
+    cin >> id;
+
+    int pos = searchIndex(id);
+    if (pos == -1) {
+        cout << "Employee not found.\n";
+        return;
+    }
+
+    // Read all employees
+    vector<Employee> allEmployees;
+    Employee emp;
+    ifstream dataFile("employee.dat", ios::binary);
+    while (dataFile.read((char*)&emp, sizeof(Employee))) {
+        allEmployees.push_back(emp);
+    }
+    dataFile.close();
+
+    // Remove from memory and index
+    allEmployees.erase(allEmployees.begin() + pos);
+    indexList.erase(remove_if(indexList.begin(), indexList.end(),
+                  [id](Index idx){ return idx.id == id; }), indexList.end());
+
+    // Rewrite employee file
+    ofstream outData("employee.dat", ios::binary | ios::trunc);
+    for (int i = 0; i < allEmployees.size(); i++) {
+        outData.write((char*)&allEmployees[i], sizeof(Employee));
+        indexList[i].position = i; // Reassign correct positions
+    }
+    outData.close();
+
+    saveIndex();
+    cout << "Employee deleted successfully.\n";
+}
+
+int main() {
+    loadIndex();
+
+    int choice;
+    do {
+        cout << "\n--- Employee Information System ---\n";
+        cout << "1. Add Employee\n";
+        cout << "2. Delete Employee\n";
+        cout << "3. Display Employee\n";
+        cout << "4. Exit\n";
+        cout << "Enter choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1: addEmployee(); break;
+            case 2: deleteEmployee(); break;
+            case 3: displayEmployee(); break;
+            case 4: cout << "Exiting...\n"; break;
+            default: cout << "Invalid choice.\n";
+        }
+    } while (choice != 4);
+
+    return 0;
+}
