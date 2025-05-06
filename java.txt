@@ -1,0 +1,43 @@
+public class ShellSortModular {
+
+    // Method to perform Shell Sort
+    public static void shellSort(int[] arr) {
+        int n = arr.length;
+        // Start with a big gap, then reduce the gap
+        for (int gap = n / 2; gap > 0; gap /= 2) {
+            // Do a gapped insertion sort for this gap size
+            for (int i = gap; i < n; i++) {
+                int temp = arr[i];
+                int j = i;
+
+                while (j >= gap && arr[j - gap] > temp) {
+                    arr[j] = arr[j - gap];
+                    j -= gap;
+                }
+
+                arr[j] = temp;
+            }
+        }
+    }
+
+    // Method to print the array
+    public static void printArray(int[] arr) {
+        for (int value : arr) {
+            System.out.print(value + " ");
+        }
+        System.out.println();
+    }
+
+    // Main method
+    public static void main(String[] args) {
+        int[] data = {45, 23, 10, 89, 5, 77, 12};
+
+        System.out.println("Original Array:");
+        printArray(data);
+
+        shellSort(data);
+
+        System.out.println("Sorted Array using Shell Sort:");
+        printArray(data);
+    }
+}

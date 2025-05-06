@@ -1,0 +1,68 @@
+class SimpleDict:
+    def __init__(self, size):
+        self.size = size
+        self.table = [[] for _ in range(size)]  # List of lists (chaining)
+
+    def hash_function(self, key):
+        return sum(ord(c) for c in key) % self.size
+
+    def insert(self, key, value):
+        index = self.hash_function(key)
+        for i, (k, v) in enumerate(self.table[index]):
+            if k == key:
+                self.table[index][i] = (key, value)  # Replace
+                print("Updated:", key)
+                return
+        self.table[index].append((key, value))
+        print("Inserted:", key)
+
+    def find(self, key):
+        index = self.hash_function(key)
+        for k, v in self.table[index]:
+            if k == key:
+                return v
+        return None
+
+    def delete(self, key):
+        index = self.hash_function(key)
+        for i, (k, v) in enumerate(self.table[index]):
+            if k == key:
+                del self.table[index][i]
+                print("Deleted:", key)
+                return
+        print("Key not found.")
+
+    def display(self):
+        for i, bucket in enumerate(self.table):
+            print(f"{i}: {bucket}")
+
+
+# Main program
+def main():
+    size = int(input("Hash table size: "))
+    d = SimpleDict(size)
+
+    while True:
+        print("\n1. Insert\n2. Find\n3. Delete\n4. Display\n5. Exit")
+        choice = input("Enter choice: ")
+
+        if choice == "1":
+            k = input("Key: ")
+            v = input("Value: ")
+            d.insert(k, v)
+        elif choice == "2":
+            k = input("Key to find: ")
+            val = d.find(k)
+            print("Value:", val if val else "Not found")
+        elif choice == "3":
+            k = input("Key to delete: ")
+            d.delete(k)
+        elif choice == "4":
+            d.display()
+        elif choice == "5":
+            break
+        else:
+            print("Invalid choice.")
+
+if __name__ == "__main__":
+    main()

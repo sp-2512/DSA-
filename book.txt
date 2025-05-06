@@ -1,0 +1,53 @@
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+class TreeNode {
+public:
+    string name;          
+    vector<TreeNode*> children; 
+    TreeNode(string name) {
+        this->name = name;
+    }
+    void addChild(TreeNode* child) {
+        children.push_back(child);
+    }
+};
+
+void printTree(TreeNode* node, int level = 0) {
+    if (node == nullptr) return;
+
+    for (int i = 0; i < level; i++) {
+        cout << "    ";  
+    }
+    cout << node->name << endl;
+    for (TreeNode* child : node->children) {
+        printTree(child, level + 1);
+    }
+}
+int main() {
+    TreeNode* book = new TreeNode("Book");
+
+    TreeNode* chapter1 = new TreeNode("Chapter 1");
+    TreeNode* chapter2 = new TreeNode("Chapter 2");
+    book->addChild(chapter1);
+    book->addChild(chapter2);
+
+    TreeNode* section1_1 = new TreeNode("Section 1.1");
+    TreeNode* section1_2 = new TreeNode("Section 1.2");
+    chapter1->addChild(section1_1);
+    chapter1->addChild(section1_2);
+
+    TreeNode* subsection1_1_1 = new TreeNode("Subsection 1.1.1");
+    TreeNode* subsection1_1_2 = new TreeNode("Subsection 1.1.2");
+    section1_1->addChild(subsection1_1_1);
+    section1_1->addChild(subsection1_1_2);
+
+    TreeNode* section2_1 = new TreeNode("Section 2.1");
+    chapter2->addChild(section2_1);
+    TreeNode* subsection2_1_1 = new TreeNode("Subsection 2.1.1");
+    section2_1->addChild(subsection2_1_1);
+    cout << "Book Structure: " << endl;
+    printTree(book);
+    return 0;
+}

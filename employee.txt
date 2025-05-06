@@ -1,0 +1,94 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+void addEmployee() {
+    ofstream file("employee.txt", ios::app);
+    string id, name, designation;
+    float salary;
+
+    cout << "Enter Employee ID: ";
+    cin >> id;
+    cout << "Enter Name: ";
+    cin.ignore();
+    getline(cin, name);
+    cout << "Enter Designation: ";
+    getline(cin, designation);
+    cout << "Enter Salary: ";
+    cin >> salary;
+
+    file << id << " " << name << " " << designation << " " << salary << endl;
+    file.close();
+    cout << "Employee added.\n";
+}
+
+void displayEmployee() {
+    ifstream file("employee.txt");
+    string id, searchId, name, designation;
+    float salary;
+    bool found = false;
+
+    cout << "Enter Employee ID to search: ";
+    cin >> searchId;
+    while (file >> id >> name >> designation >> salary) {
+        if (id == searchId) {
+            cout << "\nEmployee Found:\n";
+            cout << "ID: " << id << "\nName: " << name << "\nDesignation: " << designation << "\nSalary: " << salary << endl;
+            found = true;
+            break;
+        }
+    }
+    file.close();
+
+    if (!found) {
+        cout << "Employee not found.\n";
+    }
+}
+void deleteEmployee() {
+    ifstream file("employee.txt");
+    ofstream temp("temp.txt");
+    string id, name, designation, searchId;
+    float salary;
+    bool found = false;
+
+    cout << "Enter Employee ID to delete: ";
+    cin >> searchId;
+
+    while (file >> id >> name >> designation >> salary) {
+        if (id != searchId) {
+            temp << id << " " << name << " " << designation << " " << salary << endl;
+        } else {
+            found = true;
+        }
+    }
+
+    file.close();
+    temp.close();
+    remove("employee.txt");
+    rename("temp.txt", "employee.txt");
+
+    if (found) {
+        cout << "Employee deleted.\n";
+    } else {
+        cout << "Employee not found.\n";
+    }
+}
+int main() {
+    int choice;
+    do {
+        cout << "\n--- Employee Management Menu ---\n";
+        cout << "1. Add Employee\n";
+        cout << "2. Display Employee\n";
+        cout << "3. Delete Employee\n";
+        cout << "4. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+        switch (choice) {
+            case 1: addEmployee(); break;
+            case 2: displayEmployee(); break;
+            case 3: deleteEmployee(); break;
+            default: cout << "Invalid choice. Try again.\n";
+        }
+    } while (choice != 4);
+    return 0;
+}

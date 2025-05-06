@@ -1,0 +1,57 @@
+# Hash function
+def hash_key(key, size):
+    return sum(ord(c) for c in key) % size
+
+# Input size
+N = int(input("Enter number of clients: "))
+
+# Input keys and values
+keys = []
+values = []
+for i in range(N):
+    name = input(f"Enter name {i+1}: ")
+    number = input(f"Enter phone number {i+1}: ")
+    keys.append(name)
+    values.append(number)
+
+# --- Linear Probing ---
+linear_table = [None] * (2 * N)
+linear_comparisons = 0
+
+# Insert into linear probing table
+for i in range(N):
+    idx = hash_key(keys[i], len(linear_table))
+    while linear_table[idx] is not None:
+        idx = (idx + 1) % len(linear_table)
+    linear_table[idx] = (keys[i], values[i])
+
+# Search in linear probing table
+for k in keys:
+    idx = hash_key(k, len(linear_table))
+    while linear_table[idx] is not None:
+        linear_comparisons += 1
+        if linear_table[idx][0] == k:
+            break
+        idx = (idx + 1) % len(linear_table)
+
+# --- Chaining ---
+chain_table = [[] for _ in range(N)]
+chain_comparisons = 0
+
+# Insert into chaining table
+for i in range(N):
+    idx = hash_key(keys[i], N)
+    chain_table[idx].append((keys[i], values[i]))
+
+# Search in chaining table
+for k in keys:
+    idx = hash_key(k, N)
+    for pair in chain_table[idx]:
+        chain_comparisons += 1
+        if pair[0] == k:
+            break
+
+# --- Output ---
+print("\n--- Comparison Results ---")
+print("Linear Probing comparisons:", linear_comparisons)
+print("Chaining comparisons:", chain_comparisons)

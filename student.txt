@@ -1,0 +1,81 @@
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+void addStudents() {
+    ofstream file("students.txt", ios::app);
+    int n;
+    cout << "How many students you want to add? ";
+    cin >> n;
+    for (int i = 0; i < n; i++) {
+        int roll;
+        string name, div, address;
+        cout << "\nEnter Roll No, Name, Division, Address for student " << i + 1 << ":\n";
+        cin >> roll >> name >> div;
+        cin.ignore();
+        getline(cin, address);
+        file << roll << " " << name << " " << div << " " << address << endl;
+    }
+    file.close();
+}
+
+void displayStudent() {
+    ifstream file("students.txt");
+    int roll, r;
+    string name, div, address;
+    bool found = false;
+    cout << "Enter Roll No to search: ";
+    cin >> r;
+    while (file >> roll >> name >> div) {
+        file.ignore();
+        getline(file, address);
+        if (roll == r) {
+            cout << "\nRoll No: " << roll
+                 << "\nName: " << name
+                 << "\nDivision: " << div
+                 << "\nAddress: " << address << endl;
+            found = true;
+            break;
+        }
+    }
+    if (!found) cout << "Student not found.\n";
+    file.close();
+}
+
+void deleteStudent() {
+    ifstream file("students.txt");
+    ofstream temp("temp.txt");
+    int roll, r;
+    string name, div, address;
+    bool found = false;
+    cout << "Enter Roll No to delete: ";
+    cin >> r;
+    while (file >> roll >> name >> div) {
+        file.ignore();
+        getline(file, address);
+        if (roll != r)
+            temp << roll << " " << name << " " << div << " " << address << endl;
+        else
+            found = true;
+    }
+    file.close();
+    temp.close();
+    remove("students.txt");
+    rename("temp.txt", "students.txt");
+    if (found)
+        cout << "Record deleted.\n";
+    else
+        cout << "Student not found.\n";
+}
+
+int main() {
+    int ch;
+    do {
+        cout << "\n1. Add Students\n2. Display Student\n3. Delete Student\n4. Exit\nEnter choice: ";
+        cin >> ch;
+        if (ch == 1) addStudents();
+        else if (ch == 2) displayStudent();
+        else if (ch == 3) deleteStudent();
+    } while (ch != 4);
+    return 0;
+}
